@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://www.purebasic.com/namespace" version="1.0" creator="PureBasic 5.51 (Windows - x64)">
+  <section name="config">
+    <options closefiles="1" openmode="0" name="Photogragh Database"/>
+  </section>
+  <section name="data">
+    <explorer view="..\..\Program Files (x86)\PureBasic\Examples\" pattern="0"/>
+    <log show="1"/>
+    <lastopen date="2017-01-03 06:44" user="DaveSandy" host="MEDIAPC"/>
+  </section>
+  <section name="files">
+    <file name="App.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="23bb96a40ec211b6eaff129b756c535b"/>
+    </file>
+    <file name="DCTool.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="5f9dfac116ce57c467870a4af5025a12"/>
+    </file>
+    <file name="dlgAddContent.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="97b56aebd540a7ce3bd0d98e2f91cc5b"/>
+    </file>
+    <file name="dlgAddPhoto.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="eeb0c64da454e4c53dc1281a140da95f"/>
+    </file>
+    <file name="dlgDeleteContent.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="6bd62a0c85d1544e961860b6025b361d"/>
+    </file>
+    <file name="dlgDeleteSubject.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="2f1ff86aca85e5c5532eaa1bb9af45d9"/>
+    </file>
+    <file name="dlgEditContent.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="6f970688a819c3248e7cc471f106c288"/>
+    </file>
+    <file name="dlgEditSubject.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="6cd955a412124c6fc8207c6b8563ee01"/>
+    </file>
+    <file name="dlgNewContent.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="b55ccdea5961fa0b6cfa1fe1ac81a050"/>
+    </file>
+    <file name="dlgNewSubject.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="01dfe127dec75355fd9a5ff6f44cfa14"/>
+    </file>
+    <file name="dlgPreferences.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="b8807c995b54abcb06b7862fc9f2a6cb"/>
+    </file>
+    <file name="dlgSearch.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="28ad0b697bd114d9ca4b0558816f5f07"/>
+    </file>
+    <file name="dlgSelectDate.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="f68923b7055c3c2bd64ceaeb9f535542"/>
+    </file>
+    <file name="ImageViewer.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="7f5a256edbcbad15c6599d8486730a14"/>
+    </file>
+    <file name="Locale.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="d1b476a3cbb1fd17cb28afa4a9039bb4"/>
+    </file>
+    <file name="WinMain.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="71a2818fd18f066c91a6b8b24e1f17c0"/>
+    </file>
+  </section>
+  <section name="targets">
+    <target name="Default Target" enabled="1" default="1">
+      <inputfile value="WinMain.pb"/>
+      <outputfile value="PhotoDB.exe"/>
+      <executable value="..\..\My Photos\PhotoDB.exe"/>
+      <options xpskin="1" debug="1"/>
+      <icon enable="1">image.ico</icon>
+    </target>
+  </section>
+</project>
