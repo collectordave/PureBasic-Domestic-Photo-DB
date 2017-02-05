@@ -21,6 +21,7 @@ IncludeFile "dlgEditContent.pbi"
 IncludeFile "dlgDeleteContent.pbi"
 IncludeFile "dlgSearch.pbi"
 IncludeFile "dlgAddContent.pbi"
+IncludeFile "CDPrint02.pbi"
 
 ;Get Applcation variables
 App::ReadPreferences("PhotoDB")
@@ -43,17 +44,16 @@ EndIf
 Locale::Initialise()
 
 ;Main Menu Enumeration
-Enumeration MainForm
+Enumeration 50  ;MainForm
   ;Main Window
   #WinMain
   #WinToolBar
   #WinMainmnu
-  #txtStatus
-  #btnFirst
+  #txtStatus  
+  #btnFirst  
   #btnPrevious
   #btnNext 
   #btnLast
-  ;Window Menu
   #mnuAddPhoto
   #mnuAddSubject
   #mnuEditSubject
@@ -63,16 +63,26 @@ Enumeration MainForm
   #mnuDeleteContent
   #mnuSearch
   #mnuPreferences
+  #mnuPrintItem
+  #mnuPrintThumbs
   #mnuExit
   #mnuHelp
   #mnuAbout
-  ;Image Gadgets
   #frmImages
   #btnViewImage
   #btnSlideShow
   #ImageContainer
   #imgPhoto
-  ;Detail Gadgets
+  #imgFirst
+  #imgPrevious
+  #imgNext
+  #imgLast
+  #imgSelect
+  #imgAdd
+  #imgSearch
+  #imgPrefs
+  #imgExit
+  #imgHelp
   #frmDetail
   #txtSubject
   #strSubject
@@ -80,16 +90,21 @@ Enumeration MainForm
   #strYear
   #txtMonth
   #strMonth
-  ;Content
   #frmContent
   #lstContent
   #btnAdd
   #btnRemove
+  #frmSelected
+  #lstSelected
+  #btnPreview
+  #btnExport
+  #btnClear 
 EndEnumeration
 
 ;Global Variables
-Global IconBar.i
+Global IconBar.i,PrintControl.i 
 Global Dim FileNames.s(0)
+Global Dim PrintThese.s(0)
 
 ;Fonts Etc
 Global StatusFont.i
@@ -118,8 +133,11 @@ Procedure ShowFormTexts()
   SetIconBarGadgetItemText(IconBar,Locale::TranslatedString(127),0,#IconBarText_ToolTip)
   SetIconBarGadgetItemText(IconBar,Locale::TranslatedString(29),1,#IconBarText_ToolTip)
   SetIconBarGadgetItemText(IconBar,Locale::TranslatedString(52),2,#IconBarText_ToolTip)
-  SetIconBarGadgetItemText(IconBar,Locale::TranslatedString(16),3,#IconBarText_ToolTip)
-   SetIconBarGadgetItemText(IconBar,Locale::TranslatedString(58),4,#IconBarText_ToolTip) 
+  SetIconBarGadgetItemText(IconBar,"Select For Printing",3,#IconBarText_ToolTip)   
+  SetIconBarGadgetItemText(IconBar,Locale::TranslatedString(16),4,#IconBarText_ToolTip)
+  SetIconBarGadgetItemText(IconBar,Locale::TranslatedString(58),5,#IconBarText_ToolTip)  
+
+  
   ;Menu
   If IsMenu(#WinMainmnu)
     FreeMenu(#WinMainmnu)
@@ -127,11 +145,14 @@ Procedure ShowFormTexts()
   CreateMenu(#WinMainmnu, WindowID(#WinMain))
   MenuTitle(Locale::TranslatedString(128))
   MenuItem(#mnuAddPhoto, Locale::TranslatedString(127))
-
-
   MenuItem(#mnuSearch, Locale::TranslatedString(29))
   MenuBar()
   MenuItem(#mnuPreferences, Locale::TranslatedString(52))
+  MenuBar()
+  OpenSubMenu("Print")
+    MenuItem(#mnuPrintItem, "This Photo")
+    MenuItem(#mnuPrintThumbs, "Thumbnails")
+  CloseSubMenu()
   MenuBar()
   MenuItem(#mnuExit, Locale::TranslatedString(16))
   MenuTitle(Locale::TranslatedString(121))
@@ -145,6 +166,7 @@ Procedure ShowFormTexts()
   MenuTitle(Locale::TranslatedString(58))
   MenuItem(#mnuHelp, Locale::TranslatedString(129))
   MenuItem(#mnuAbout, Locale::TranslatedString(62))
+  
   ResizeIconBarGadget(IconBar, #PB_Ignore, #IconBar_Auto)  
   
   ;Images
@@ -164,6 +186,29 @@ Procedure ShowFormTexts()
   SetGadgetText(#btnAdd,Locale::TranslatedString(127))
   SetGadgetText(#btnRemove,Locale::TranslatedString(134))
 
+EndProcedure
+
+Procedure SelectForPrint()
+  
+  Define SearchString.s,iLoop.i
+  Define j.i
+  
+  iLoop = ArraySize(PrintThese())
+  
+  SearchString = "Select * FROM Photos WHERE Photo_ID = " + Str(PhotoID)
+  DatabaseQuery(App::PhotoDB, SearchString)
+  FirstDatabaseRow(App::PhotoDB)
+  PrintThese(iLoop) = GetDatabaseString(App::PhotoDB,DatabaseColumnIndex(App::PhotoDB,"PDB_FileName"))
+  
+  ReDim PrintThese(iLoop + 1)
+  
+  FinishDatabaseQuery(App::PhotoDB)
+  
+  ClearGadgetItems(#lstSelected)
+  For j = 0 To iLoop
+    AddGadgetItem(#lstSelected,-1,GetFilePart(PrintThese(j)))
+  Next
+  
 EndProcedure
 
 Procedure ClearGadgets()
@@ -214,7 +259,6 @@ Procedure CheckRecords()
 
   ;Show the user what is going on
   If TotalRows > 0
-    ;DisableGadget(cntCatalogs,#False)
     SetGadgetText(#txtStatus,"Photograph " + Str(CurrentRow) + " " + Locale::TranslatedString(125) + " " + Str(TotalRows) + " Selected")
   Else
     SetGadgetText(#txtStatus,"Photograph" + " 0 " + Locale::TranslatedString(125) + " 0 " + Locale::TranslatedString(126)) 
@@ -280,7 +324,7 @@ Procedure DisplayRecord()
   Define SearchString.s,SMonth.s
   Define DBYear.i,DBMonth.i
   
-  SearchString = SelectClause + Fromclause + Criteria + " LIMIT 1 OFFSET " + Str(CurrentRow -1)
+  SearchString = SelectClause + Fromclause + Criteria + " ORDER BY PDB_Year ASC " + " LIMIT 1 OFFSET " + Str(CurrentRow -1)
 
   DatabaseQuery(App::PhotoDB, SearchString)
 
@@ -308,7 +352,7 @@ Procedure GetTotalRecords()
   
   ;Find out how many records will be returned
   TotalRows = 0
-  SearchString = SelectClause + Fromclause + Criteria
+  SearchString = SelectClause + Fromclause + Criteria + " ORDER BY PDB_Year ASC "
   
   If DatabaseQuery(App::PhotoDB, SearchString)
     
@@ -320,12 +364,14 @@ Procedure GetTotalRecords()
     
     FinishDatabaseQuery(App::PhotoDB)  
     
+  Else
+    Debug DatabaseError()
   EndIf
   
   ;Populate FileName Array for Image Viewer
   Dim FileNames(0)
   ReDim FileNames(TotalRows)
-  SearchString = SelectClause + Fromclause + Criteria
+  ;SearchString = SelectClause + Fromclause + Criteria
   iLoop = 0
   If DatabaseQuery(App::PhotoDB, SearchString)
     
@@ -342,33 +388,210 @@ Procedure GetTotalRecords()
   
 EndProcedure
 
-CatchImage(0,?FirstPhoto)
-CatchImage(1,?PreviousPhoto)
-CatchImage(2,?NextPhoto)
-CatchImage(3,?LastPhoto)
-CatchImage(4,?ToolBarAdd)
-CatchImage(5,?ToolBarSearch)
-CatchImage(6,?ToolBarPreferences)
-CatchImage(7,?ToolBarExit)
-CatchImage(8,?ToolBarHelp)
+Procedure.d CalculateAspectRatio(OriginalWidth.d,OriginalHeight.d,MaximinWidth.d,MaximumHeight.d)
+  
+  Define Ratio1.d,Ratio2.d,Aspect.d
+  
+  Ratio1 = MaximinWidth/OriginalWidth
+  Ratio2 = MaximumHeight/OriginalHeight
+  
+  If Ratio1 < Ratio2
+    Aspect = Ratio1
+  Else
+    Aspect = Ratio2
+  EndIf
+
+  ProcedureReturn Aspect
+
+EndProcedure
+
+Procedure PrintPhoto()
+  
+  ;Define PageHeight.i,PageWidth.i
+  
+  Define Maxheight.i,MaxWidth.i,MaxPheight.i,MaxPWidth.i,PictureHeight.i,PictureWidth.i    
+  Define Startx.i,Starty.i,PageHeight.i,PageWidth.i,MinimumX.i
+  Define PictureSize.i,Picture.i,adjustedheight.i,adjustedwidth.i
+  Define SearchString.s,iLoop.i,Filename.s
+  ;Define PrintOrientation.i
+  ;Define ImageOrientation.i
+  Define Aspect.d
+  
+  ;Get Photograph FileName
+  SearchString = "Select * FROM Photos WHERE Photo_ID = " + Str(PhotoID)
+  DatabaseQuery(App::PhotoDB, SearchString)
+    FirstDatabaseRow(App::PhotoDB)
+    Filename = GetDatabaseString(App::PhotoDB,DatabaseColumnIndex(App::PhotoDB,"PDB_FileName"))
+  FinishDatabaseQuery(App::PhotoDB)
+  
+  ;Check Photograph still exists on computer
+  If Not App::FileExists(Filename)
+    
+    MessageRequester(Locale::TranslatedString(104),"Photograph Not Found!",#PB_MessageRequester_Ok|#PB_MessageRequester_Error)
+    ProcedureReturn #False
+    
+  EndIf
+  
+  ;Open The Print Controller
+  If  CDPrint::Open("PhotoDB",CDPrint::#Preview) ;Can Be CDPrint::#NoPreview as well
+      
+    ;Get Printable Page Dimensions And Margins
+    PageHeight = CDPrint::Printer\Height - 20 ; PageSetup::TopMargin - PageSetup::BottomMargin
+    PageWidth = CDPrint::Printer\Width - 20 ; Pagesetup::LeftMargin - Pagesetup::RightMargin
+
+    Startx = 10 ;Pagesetup::LeftMargin
+    Starty = 10 ;PageSetup::TopMargin
+  
+    ;Load the photograph
+    Picture = LoadImage(#PB_Any,Filename)
+  
+    If CDPrint::Printer\Height > CDPrint::Printer\Width
+      MaxHeight = PageHeight
+      MaxWidth = PageWidth 
+    Else
+      MaxHeight = PageWidth
+      MaxWidth = PageHeight   
+    EndIf
+  
+    If ImageHeight(Picture) > ImageWidth(Picture)
+      MaxPHeight = ImageHeight(Picture)
+      MaxPWidth = ImageWidth(Picture)   
+      CDPrint::AddPage(CDPrint::#Portrait)   
+    Else
+      MaxPHeight = ImageWidth(Picture)
+      MaxPWidth = ImageHeight(Picture)   
+      CDPrint::AddPage(CDPrint::#Landscape) 
+    EndIf 
+  
+    ;Now Calculate The Aspect Ratio
+    Aspect = CalculateAspectRatio(MaxPWidth,MaxPHeight,MaxWidth,MaxHeight)
+  
+    adjustedwidth = ImageWidth(Picture) * Aspect
+    adjustedheight = ImageHeight(Picture) * Aspect
+
+    ;Print the image
+    CDPrint::PrintImageFromFile(Filename,Startx,Starty,adjustedwidth,adjustedheight)
+  
+    ;Finish The Print Job
+    CDPrint::Finished()
+    
+  EndIf
+  
+EndProcedure
+
+Procedure PrintThumbNails()
+  
+  Define Startx.i,Starty.i,PageHeight.i,PageWidth.i,MinimumX.i
+  Define Picture.i,iLoop.i,Orientation.i
+  Define PictureSize.i,Picture.i,adjustedheight.i,adjustedwidth.i
+    
+  Startx = 10 ;Pagesetup::LeftMargin
+  Starty = 10 ;PageSetup::TopMargin 
+  
+  ;Open The Print Controller
+  If CDPrint::Open("PhotoDB",CDPrint::#Preview) ;Can Be CDPrint::#NoPreview as well
+    PageHeight = CDPrint::Printer\Height - 20 ; PageSetup::TopMargin - PageSetup::BottomMargin
+    PageWidth = CDPrint::Printer\Width - 20 ; Pagesetup::LeftMargin - Pagesetup::RightMargin   
+  
+    If Pageheight > PageWidth
+      Orientation = CDPrint::#Portrait
+    Else
+      Orientation = CDPrint::#Landscape
+    EndIf
+  
+    ;Add First Page
+    CDPrint::AddPage(Orientation)  
+
+    For iLoop = 0 To ArraySize(PrintThese()) - 1
+
+      If App::FileExists(PrintThese(iLoop))
+
+        Picture = LoadImage(#PB_Any,PrintThese(iLoop))
+    
+        If Picture > 0
+          adjustedheight = (App::ThumbSize * ImageHeight(Picture)) /ImageWidth(Picture)
+          adjustedwidth = App::ThumbSize
+
+          If adjustedheight > App::ThumbSize
+            adjustedwidth = (App::ThumbSize * ImageWidth(Picture)) / ImageHeight(Picture)
+            adjustedheight = App::ThumbSize
+          EndIf
+          CDPrint::PrintImageFromFile(PrintThese(iLoop),Startx,Starty,adjustedwidth,adjustedheight) 
+        
+          If (Startx + (App::ThumbSize * 2) + 5) < PageWidth
+            Startx = Startx + App::ThumbSize + 5
+          Else
+            Startx = 10
+            If (Starty + (App::ThumbSize * 2) + 5) < PageHeight      
+              Starty = starty + App::ThumbSize + 5
+            Else
+              CDPrint::AddPage(Orientation)
+              Startx = 10
+              Starty = 10
+            EndIf
+         
+          EndIf
+
+        EndIf
+    
+      Else
+    
+        MessageRequester(Locale::TranslatedString(104),"Photograph Not Found!",#PB_MessageRequester_Ok|#PB_MessageRequester_Error)
+    
+      EndIf
+    
+    Next
+
+    ;Finish The Print Job
+    CDPrint::Finished() 
+
+  EndIf
+  
+EndProcedure
+
+Procedure ExportImages()
+  
+  Define InitialPath.s,Path.s
+  
+  InitialPath = "C:\"   ; set initial path to display (could also be blank)
+  Path = PathRequester("Please choose your path", InitialPath)
+  If Path
+    MessageRequester("Information", "You have selected the following path:"+Chr(10)+Path, 0)
+  Else
+    MessageRequester("Information", "The requester was canceled.", 0) 
+  EndIf
+
+
+  
+EndProcedure
+
+CatchImage(#imgFirst,?FirstPhoto)
+CatchImage(#imgPrevious,?PreviousPhoto)
+CatchImage(#imgNext,?NextPhoto)
+CatchImage(#imgLast,?LastPhoto)
+CatchImage(#imgAdd,?ToolBarAdd)
+CatchImage(#imgSearch,?ToolBarSearch)
+CatchImage(#imgPrefs,?ToolBarPreferences)
+CatchImage(#imgExit,?ToolBarExit)
+CatchImage(#imgHelp,?ToolBarHelp)
+CatchImage(#imgSelect,?ToolBarSelect)
 
 ;Main Window
-OpenWindow(#WinMain, 0, 0, 515, 360, "", #PB_Window_SystemMenu| #PB_Window_ScreenCentered)
-;Just needed as placeholders so iconbar resizes ready for menu
-CreateMenu(#WinMainmnu, WindowID(#WinMain))
-MenuTitle("test")
+OpenWindow(#WinMain, 0, 0, 710, 336, "", #PB_Window_SystemMenu| #PB_Window_ScreenCentered)
 
 IconBar = IconBarGadget(0, 0, WindowWidth(#WinMain),20,#IconBar_Default,#WinMain) 
-AddIconBarGadgetItem(IconBar, "", 4)
-AddIconBarGadgetItem(IconBar, "", 5)
-AddIconBarGadgetItem(IconBar, "", 6)
+AddIconBarGadgetItem(IconBar, "", #imgAdd)
+AddIconBarGadgetItem(IconBar, "", #imgSearch)
+AddIconBarGadgetItem(IconBar, "", #imgPrefs)
 IconBarGadgetDivider(IconBar)
-AddIconBarGadgetItem(IconBar, "", 7)
+AddIconBarGadgetItem(IconBar, "", #imgSelect)
+IconBarGadgetDivider(IconBar)
+AddIconBarGadgetItem(IconBar, "", #imgExit)
 IconBarGadgetSpacer(IconBar)
-AddIconBarGadgetItem(IconBar, "", 8)
+AddIconBarGadgetItem(IconBar, "", #imgHelp)
 ResizeIconBarGadget(IconBar, #PB_Ignore, #IconBar_Auto)  
 SetIconBarGadgetColor(IconBar, 1, RGB(176,224,230))
-TextGadget(#txtStatus, 65,305, 385, 32, "",#PB_Text_Center|#PB_Text_Border)
+TextGadget(#txtStatus, 65,305, 580, 32, "",#PB_Text_Center|#PB_Text_Border)
 SetGadgetFont(#txtStatus, FontID(StatusFont))
 
 ;Move window to centre screen at the top
@@ -390,8 +613,8 @@ TextGadget(#txtSubject, 225, 65, 50, 20, "", #PB_Text_Right)
 StringGadget(#strSubject, 280, 65, 220, 20, "")
 TextGadget(#txtYear, 225, 95, 50, 20, "", #PB_Text_Right)
 StringGadget(#strYear, 280, 95, 50, 20, "")
-TextGadget(#txtMonth, 340, 95, 70, 20, "", #PB_Text_Right)
-StringGadget(#strMonth, 420, 95, 80, 20, "")
+TextGadget(#txtMonth, 300, 95, 70, 20, "", #PB_Text_Right)
+StringGadget(#strMonth, 380, 95, 80, 20, "")
  
 ;Content
 FrameGadget(#frmContent, 220, 130, 290, 174,"")
@@ -399,12 +622,19 @@ ListViewGadget(#lstContent, 230, 150, 270, 114)
 ButtonGadget(#btnAdd, 230, 272, 70, 25,"")
 ButtonGadget(#btnRemove, 430, 272, 70, 25,"")
 
+;Selected Files
+FrameGadget(#frmSelected, 520, 42, 180, 262, " Selected ")
+ListViewGadget(#lstSelected, 525, 60, 170, 200)
+ButtonGadget(#btnPreview, 525, 272, 50, 25,"Preview")
+ButtonGadget(#btnExport, 585, 272, 50, 25,"Export")
+ButtonGadget(#btnClear, 645, 272, 50, 25,"Clear")
+
 ;Navigation Buttons
-ButtonImageGadget(#btnFirst, 0, 305, 32, 32, ImageID(0))
-ButtonImageGadget(#btnPrevious, 31, 305, 32, 32, ImageID(1))
-ButtonImageGadget(#btnNext, 451, 305, 32, 32, ImageID(2))
-ButtonImageGadget(#btnLast, 482, 305, 32, 32, ImageID(3))
- 
+ButtonImageGadget(#btnFirst, 0, 305, 32, 32, ImageID(#imgFirst))
+ButtonImageGadget(#btnPrevious, 31, 305, 32, 32, ImageID(#imgPrevious))
+ButtonImageGadget(#btnNext, 646, 305, 32, 32, ImageID(#imgNext))
+ButtonImageGadget(#btnLast, 678, 305, 32, 32, ImageID(#imgLast))
+
 ShowFormTexts()
 
 ;Open The Photo Database
@@ -414,138 +644,19 @@ ClearGadgets()
 Repeat
   
   Event = WaitWindowEvent() 
-  Select Event
+  
+      Select Event
       
-    Case   #PB_Event_CloseWindow
+        Case   #PB_Event_CloseWindow
       
-      End
-      
-    Case #PB_Event_Menu
-      
-      Select EventMenu() 
-          
-        Case #mnuAddPhoto
-          
-          TempCriteria.s = AddPhoto::Open()
-          If AddPhoto::OkPressed = #True
-            Criteria = TempCriteria
-            ClearGadgets()
-            GetTotalRecords()
-            CurrentRow = 1
-            CheckRecords()
-            DisplayRecord()   
-          EndIf
-          
-        Case #mnuPreferences
-          
-          Preferences::Open()
-          Locale::Initialise()
-          ShowFormTexts()
-          
-        Case #mnuExit
-
           End
+      
+        Case #PB_Event_Menu
+      
+          Select EventMenu() 
           
-        Case #mnuAddSubject
-          
-          NewSubject::Open()
-          
-        Case #mnuEditSubject
-          
-          EditSubject::Open()
-          
-        Case #mnuDeleteSubject
-          
-          DeleteSubject::Open()
+            Case #mnuAddPhoto
            
-        Case #mnuAddContent
-          
-          NewContent::Open()
-          
-        Case #mnuEditContent
-          
-          EditContent::Open()
-          
-        Case #mnuDeleteContent
-          
-          DeleteContent::Open()
-          DisplayContent()
-          
-        Case #mnuSearch
-          
-          Criteria = SearchWin::Open()
-          ClearGadgets()
-          GetTotalRecords()
-          CurrentRow = 1
-          CheckRecords()
-          DisplayRecord()
-
-      EndSelect
-        
-    Case #PB_Event_Gadget
-        
-      Select EventGadget()
-            
-        Case #btnFirst
-          
-          CurrentRow = 1
-          CheckRecords()
-          DisplayRecord()
-            
-        Case #btnPrevious
-          
-          If CurrentRow > 1
-            CurrentRow = CurrentRow - 1
-            CheckRecords()
-            DisplayRecord()
-          EndIf          
-          
-        Case #btnNext
-
-          If CurrentRow < TotalRows
-            CurrentRow = CurrentRow + 1
-            CheckRecords()
-            DisplayRecord()
-          EndIf
-          
-        Case #btnLast
-                    
-          CurrentRow = TotalRows
-          CheckRecords()
-          DisplayRecord()
-          
-        Case #btnViewImage
-          
-          Dim TempArray.s(0)
-          TempArray(0) = FileNames(CurrentRow - 1)
-          ImageViewer::Open(TempArray())
-          
-        Case   #btnSlideShow
-
-          ImageViewer::Open(FileNames())
-          
-        Case #btnAdd
-
-          AddContent::Open(PhotoID)
-          DisplayContent()
-          
-        Case #btnRemove
-
-          RemoveContent()          
-          ClearGadgets()
-          GetTotalRecords()
-          If CurrentRow > TotalRows
-            CurrentRow = TotalRows
-          EndIf
-          CheckRecords()
-          DisplayRecord()
-          
-        Case IconBar ;Toolbar event
-             
-          Select EventData() ;For each button on toolbar
-              
-            Case 0
-
               TempCriteria.s = AddPhoto::Open()
               If AddPhoto::OkPressed = #True
                 Criteria = TempCriteria
@@ -555,36 +666,212 @@ Repeat
                 CheckRecords()
                 DisplayRecord()   
               EndIf
-              
-            Case 1
-              
-              Criteria = SearchWin::Open()
-              ClearGadgets()
-              GetTotalRecords()
-              CurrentRow = 1
-              CheckRecords()
-              DisplayRecord()
-              
-            Case 2
- 
+     
+            Case #mnuPreferences
+          
               Preferences::Open()
               Locale::Initialise()
               ShowFormTexts()
+          
+            Case   #mnuPrintItem
               
-            Case 3
+              If TotalRows > 0
+
+                PrintPhoto()
+                
+              EndIf
+              
+            Case  #mnuPrintThumbs      
+              
+              If ArraySize(printthese()) > 0
+                PrintThumbNails()
+              Else
+                MessageRequester(Locale::TranslatedString(104),"No Photograghs Selected",#PB_MessageRequester_Ok|#PB_MessageRequester_Info)
+              EndIf              
+           
+            Case #mnuExit
 
               End
-                
-            Case 4
-              
-              ;Debug Locale::TranslatedString(58) Help
-              
-          EndSelect           
+          
+            Case #mnuAddSubject
+          
+              NewSubject::Open()
+          
+            Case #mnuEditSubject
+          
+              EditSubject::Open()
+          
+            Case #mnuDeleteSubject
+          
+              DeleteSubject::Open()
+           
+            Case #mnuAddContent
+          
+              NewContent::Open()
+          
+            Case #mnuEditContent
+          
+              EditContent::Open()
+          
+            Case #mnuDeleteContent
+          
+              DeleteContent::Open()
+              DisplayContent()
+          
+            Case #mnuSearch
+          
+              TempCriteria = SearchWin::Open()
+
+              If Len(TempCriteria) > 0
+                Criteria = TempCriteria
+                ClearGadgets()
+                GetTotalRecords()
+                CurrentRow = 1
+                CheckRecords()
+                DisplayRecord()
+              EndIf
             
-      EndSelect  
+          EndSelect
         
-  EndSelect
-  
+        Case #PB_Event_Gadget
+        
+          Select EventGadget()
+            
+            Case #btnFirst
+          
+              CurrentRow = 1
+              CheckRecords()
+              DisplayRecord()
+            
+            Case #btnPrevious
+          
+              If CurrentRow > 1
+                CurrentRow = CurrentRow - 1
+                CheckRecords()
+                DisplayRecord()
+              EndIf          
+          
+            Case #btnNext
+
+              If CurrentRow < TotalRows
+                CurrentRow = CurrentRow + 1
+                CheckRecords()
+                DisplayRecord()
+              EndIf
+          
+            Case #btnLast
+                    
+              CurrentRow = TotalRows
+              CheckRecords()
+              DisplayRecord()
+          
+            Case #btnViewImage
+              
+              If TotalRows > 0
+                Dim TempArray.s(0)
+                TempArray(0) = FileNames(CurrentRow - 1)
+                ImageViewer::Open(TempArray())
+              EndIf
+              
+            Case   #btnSlideShow
+              
+              If TotalRows > 0
+                ImageViewer::Open(FileNames())
+              EndIf
+              
+            Case #btnAdd
+
+              AddContent::Open(PhotoID)
+              DisplayContent()
+          
+            Case #btnRemove
+
+              RemoveContent()          
+              ClearGadgets()
+              GetTotalRecords()
+              If CurrentRow > TotalRows
+                CurrentRow = TotalRows
+              EndIf
+              CheckRecords()
+              DisplayRecord()
+              
+            Case #btnPreview 
+              
+              If ArraySize(printthese()) > 0
+                PrintThumbNails()
+              Else
+                MessageRequester(Locale::TranslatedString(104),"No Photograghs Selected",#PB_MessageRequester_Ok|#PB_MessageRequester_Info)
+              EndIf
+              
+            Case #btnExport
+              
+              If ArraySize(printthese()) > 0
+                ExportImages()
+              Else
+                MessageRequester(Locale::TranslatedString(104),"No Photograghs Selected",#PB_MessageRequester_Ok|#PB_MessageRequester_Info)
+              EndIf
+                            
+            Case #btnClear
+              
+              ClearGadgetItems(#lstSelected)
+              ReDim PrintThese(0)
+              
+            Case IconBar ;Toolbar event
+             
+              Select EventData() ;For each button on toolbar
+              
+                Case 0
+
+                  TempCriteria.s = AddPhoto::Open()
+                  If AddPhoto::OkPressed = #True
+                    Criteria = TempCriteria
+                    ClearGadgets()
+                    GetTotalRecords()
+                    CurrentRow = 1
+                    CheckRecords()
+                    DisplayRecord()   
+                  EndIf
+              
+                Case 1
+              
+                  TempCriteria = SearchWin::Open()
+
+                  If Len(TempCriteria) > 0
+                    Criteria = TempCriteria
+                    ClearGadgets()
+                    GetTotalRecords()
+                    CurrentRow = 1
+                    CheckRecords()
+                    DisplayRecord()
+                  EndIf
+              
+                Case 2
+ 
+                  Preferences::Open()
+                  Locale::Initialise()
+                  ShowFormTexts()
+              
+                Case 3
+                  
+                  If TotalRows > 0
+                    SelectForPrint()
+                  EndIf
+                
+                 Case 4
+
+                  End
+                
+                Case 5
+              
+                  Debug Locale::TranslatedString(58) ;Help
+              
+              EndSelect           
+            
+          EndSelect  
+          
+      EndSelect
+      
+    
 ForEver  
   
 DataSection
@@ -610,10 +897,13 @@ DataSection
     IncludeBinary "Cancel.png"  
   ToolBarHelp:
     IncludeBinary "Help.png"    
- EndDataSection
-; IDE Options = PureBasic 5.50 (Windows - x64)
-; CursorPosition = 571
-; FirstLine = 399
-; Folding = A-
+  ToolBarSelect:
+    IncludeBinary "SelectImage.png"      
+    
+  EndDataSection
+; IDE Options = PureBasic 5.60 Beta 1 (Windows - x64)
+; CursorPosition = 518
+; FirstLine = 264
+; Folding = A5+
 ; EnableXP
 ; EnableUnicode

@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://www.purebasic.com/namespace" version="1.0" creator="PureBasic 5.51 (Windows - x64)">
+<project xmlns="http://www.purebasic.com/namespace" version="1.0" creator="PureBasic 5.60 Beta 1 (Windows - x64)">
   <section name="config">
     <options closefiles="1" openmode="0" name="Photogragh Database"/>
   </section>
   <section name="data">
     <explorer view="..\..\Program Files (x86)\PureBasic\Examples\" pattern="0"/>
     <log show="1"/>
-    <lastopen date="2017-01-03 06:44" user="DaveSandy" host="MEDIAPC"/>
+    <lastopen date="2017-02-05 15:29" user="DaveSandy" host="MEDIAPC"/>
   </section>
   <section name="files">
     <file name="App.pbi">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
-      <fingerprint md5="23bb96a40ec211b6eaff129b756c535b"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="082fd8d1ceba749444cc10b804cd7208"/>
     </file>
     <file name="DCTool.pbi">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
       <fingerprint md5="5f9dfac116ce57c467870a4af5025a12"/>
     </file>
     <file name="dlgAddContent.pbi">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
       <fingerprint md5="97b56aebd540a7ce3bd0d98e2f91cc5b"/>
     </file>
     <file name="dlgAddPhoto.pbi">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
       <fingerprint md5="eeb0c64da454e4c53dc1281a140da95f"/>
     </file>
     <file name="dlgDeleteContent.pbi">
@@ -51,34 +51,38 @@
       <fingerprint md5="01dfe127dec75355fd9a5ff6f44cfa14"/>
     </file>
     <file name="dlgPreferences.pbi">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
-      <fingerprint md5="b8807c995b54abcb06b7862fc9f2a6cb"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="0cdcd8f6c08f38e7be56512de22dc302"/>
     </file>
     <file name="dlgSearch.pbi">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
-      <fingerprint md5="28ad0b697bd114d9ca4b0558816f5f07"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
+      <fingerprint md5="8383549c6a60118711c95dc71850449b"/>
     </file>
     <file name="dlgSelectDate.pbi">
       <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
-      <fingerprint md5="f68923b7055c3c2bd64ceaeb9f535542"/>
+      <fingerprint md5="3a0a89ef4267476c478ac6c489b4361f"/>
     </file>
     <file name="ImageViewer.pbi">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
       <fingerprint md5="7f5a256edbcbad15c6599d8486730a14"/>
     </file>
     <file name="Locale.pbi">
-      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="+"/>
       <fingerprint md5="d1b476a3cbb1fd17cb28afa4a9039bb4"/>
     </file>
     <file name="WinMain.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
-      <fingerprint md5="71a2818fd18f066c91a6b8b24e1f17c0"/>
+      <fingerprint md5="1a807b624d8213b51022a2eef4de4e68"/>
+    </file>
+    <file name="CDPrint.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="dd9f588ba6c40dcb18e86f6eca69fcc1"/>
     </file>
   </section>
   <section name="targets">
     <target name="Default Target" enabled="1" default="1">
       <inputfile value="WinMain.pb"/>
-      <outputfile value="PhotoDB.exe"/>
+      <outputfile value="..\..\My Photos\PhotoDB.exe"/>
       <executable value="..\..\My Photos\PhotoDB.exe"/>
       <options xpskin="1" debug="1"/>
       <icon enable="1">image.ico</icon>
