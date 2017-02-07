@@ -1,4 +1,26 @@
-﻿DeclareModule AddContent
+﻿;{ ==Code Header Comment==============================
+;         Name/title: dlgAddContent.pbi
+;    Executable name: N/A
+;            Version: 1.0.0
+;    Original Author: Collectordave
+;     Translation by: 
+;        Create date: 05\Feb\2017
+;  Previous releases: 
+;  This Release Date: 05\Feb\2017 
+;   Operating system: Windows  [X]GUI
+;   Compiler version: PureBasic 5.6B2 (x64)
+;          Copyright: (C)2017
+;            License: Credit Only
+;          Libraries: 
+;      English Forum: 
+;       French Forum: 
+;       German Forum: 
+;   Tested platforms: Windows
+;        Description: Include module to add content in Photodb
+; ====================================================
+;.......10........20........30........40........50........60........70........80
+;}
+DeclareModule AddContent
   
   Declare Open(PhotoID.i)
   
@@ -103,8 +125,7 @@ EndEnumeration
   EndProcedure  
 
 EndModule
-; IDE Options = PureBasic 5.50 (Windows - x64)
-; CursorPosition = 67
-; FirstLine = 30
-; Folding = 4-
+; IDE Options = PureBasic 5.60 Beta 1 (Windows - x64)
+; CursorPosition = 18
+; Folding = v-
 ; EnableXP
