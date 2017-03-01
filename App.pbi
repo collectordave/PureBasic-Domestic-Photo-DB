@@ -16,7 +16,7 @@ Global BaseFolder.s
 Global SlideTime.i
 Global Language.s
 Global Move.i  
-
+Global ThumbSize.i
 Global PhotoDB.i
 
 Global PPmm.i
@@ -94,26 +94,27 @@ Module App
   
 EndProcedure 
   
-Procedure.i AutoSize(gadgetNo)
-  Shared alignFlag
-  gadgetWt = GadgetWidth(gadgetNo)
-  gadgetHt = GadgetHeight(gadgetNo, #PB_Gadget_RequiredSize)
-  gadgetText.s = (ReplaceString(Trim(GetGadgetText(gadgetNo)), "  ", " ")) + " "
-  tempGadget = TextGadget(#PB_Any, -1000, -1000, gadgetWt, gadgetHt, "", alignFlag)
-  SetGadgetFont(tempGadget, GetGadgetFont(gadgetNo))
-  HideGadget(tempGadget, 1)
-  For textIndex = 1 To CountString(gadgetText, " ")
-    If alignFlag = #PB_Text_Right
-      SetGadgetText(tempGadget, " " + StringField(gadgetText, textIndex, " "))
-    Else
-      SetGadgetText(tempGadget, StringField(gadgetText, textIndex, " "))
-    EndIf
-    textIndexWidth = GadgetWidth(tempGadget, #PB_Gadget_RequiredSize)
-    If textIndexWidth > gadgetWt
-      gadgetWt = textIndexWidth
-      expanded = 1
-    EndIf
-  Next textIndex
+  Procedure.i AutoSize(gadgetNo)
+    
+    Shared alignFlag
+    gadgetWt = GadgetWidth(gadgetNo)
+    gadgetHt = GadgetHeight(gadgetNo, #PB_Gadget_RequiredSize)
+    gadgetText.s = (ReplaceString(Trim(GetGadgetText(gadgetNo)), "  ", " ")) + " "
+    tempGadget = TextGadget(#PB_Any, -1000, -1000, gadgetWt, gadgetHt, "", alignFlag)
+    SetGadgetFont(tempGadget, GetGadgetFont(gadgetNo))
+    HideGadget(tempGadget, 1)
+    For textIndex = 1 To CountString(gadgetText, " ")
+      If alignFlag = #PB_Text_Right
+        SetGadgetText(tempGadget, " " + StringField(gadgetText, textIndex, " "))
+      Else
+        SetGadgetText(tempGadget, StringField(gadgetText, textIndex, " "))
+      EndIf
+      textIndexWidth = GadgetWidth(tempGadget, #PB_Gadget_RequiredSize)
+      If textIndexWidth > gadgetWt
+        gadgetWt = textIndexWidth
+        expanded = 1
+      EndIf
+    Next textIndex
  
   If Not expanded
     textIndexWidth = 0
@@ -193,7 +194,7 @@ Procedure.i AutoSize(gadgetNo)
   
 EndProcedure
 
-Procedure.s Getlocale()
+  Procedure.s Getlocale()
   
   Define Lang.s
 CompilerIf #PB_Compiler_OS = #PB_OS_Windows
@@ -366,6 +367,7 @@ EndProcedure
     App::BaseFolder =  ReadPreferenceString("BaseFolder",App::#DefaultFolder)
     App::SlideTime =  ReadPreferenceInteger("SlideTime",2)
     App::Move =  ReadPreferenceInteger("Move",#False)   
+    App::ThumbSize = ReadPreferenceInteger("ThumbSize",75) 
     ClosePreferences()
 
   EndProcedure
@@ -383,7 +385,8 @@ EndProcedure
       WritePreferenceString("ProgramLanguage", App::ProgramLanguage)   
       WritePreferenceString("BaseFolder",App::BaseFolder)
       WritePreferenceInteger("SlideTime",App::SlideTime)    
-      WritePreferenceInteger("Move",App::Move)       
+      WritePreferenceInteger("Move",App::Move)  
+      WritePreferenceInteger("ThumbSize",App::ThumbSize)      
       ClosePreferences()
   
     EndIf
@@ -429,8 +432,9 @@ EndProcedure
     
 EndModule
 
-; IDE Options = PureBasic 5.50 (Windows - x64)
-; CursorPosition = 14
-; Folding = Ps
+; IDE Options = PureBasic 5.60 Beta 1 (Windows - x64)
+; CursorPosition = 113
+; FirstLine = 94
+; Folding = fs
 ; EnableXP
 ; EnableUnicode
