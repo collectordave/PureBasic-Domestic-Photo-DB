@@ -102,8 +102,8 @@ Module ImageViewer
 
      
 EndModule
-; IDE Options = PureBasic 5.50 (Windows - x64)
-; CursorPosition = 95
-; FirstLine = 68
+; IDE Options = PureBasic 5.60 Beta 3 (Windows - x64)
+; CursorPosition = 60
+; FirstLine = 47
 ; Folding = -
 ; EnableXP

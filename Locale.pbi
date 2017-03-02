@@ -1,4 +1,26 @@
-﻿UsePNGImageDecoder()
+﻿;{ ==Code Header Comment==============================
+;         Name/title: Locale.pbi
+;    Executable name: N/A
+;            Version: 1.0.0
+;    Original Author: Collectordave
+;     Translation by: 
+;        Create date: 05\Feb\2017
+;  Previous releases: 
+;  This Release Date: 05\Feb\2017 
+;   Operating system: Windows  [X]GUI
+;   Compiler version: PureBasic 5.6B2 (x64)
+;          Copyright: (C)2017
+;            License: Credit Only
+;          Libraries: 
+;      English Forum: 
+;       French Forum: 
+;       German Forum: 
+;   Tested platforms: Windows
+;        Description: Include module to control multilanguages
+; ====================================================
+;.......10........20........30........40........50........60........70........80
+;}
+UsePNGImageDecoder()
 UseSQLiteDatabase()
 
 DeclareModule Locale
@@ -180,9 +202,8 @@ EndProcedure
   EndProcedure
   
 EndModule
-; IDE Options = PureBasic 5.50 (Windows - x64)
-; CursorPosition = 118
-; FirstLine = 58
-; Folding = z0
+; IDE Options = PureBasic 5.60 Beta 1 (Windows - x64)
+; CursorPosition = 18
+; Folding = n8
 ; EnableXP
 ; EnableUnicode

@@ -1,6 +1,5 @@
 ﻿DeclareModule SelectDate
   
-
   Declare.i Open()
   
 EndDeclareModule
@@ -23,8 +22,7 @@ Module SelectDate
     SetGadgetText(#btnCancel,Locale::TranslatedString(3))   
     
   EndProcedure
-   
-  
+     
   Procedure.i Open()
     
     Define Date.i 
@@ -64,9 +62,7 @@ Module SelectDate
   EndProcedure
   
   EndModule  
-; IDE Options = PureBasic 5.50 (Windows - x64)
-; CursorPosition = 37
-; FirstLine = 16
+; IDE Options = PureBasic 5.51 (Windows - x64)
 ; Folding = -
 ; EnableXP
 ; EnableUnicode

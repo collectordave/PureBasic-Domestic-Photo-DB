@@ -221,7 +221,8 @@ Procedure SelectForPrint()
   SearchString = "Select * FROM Photos WHERE Photo_ID = " + Str(PhotoID)
   DatabaseQuery(App::PhotoDB, SearchString)
   FirstDatabaseRow(App::PhotoDB)
-  PrintThese(iLoop) = GetDatabaseString(App::PhotoDB,DatabaseColumnIndex(App::PhotoDB,"PDB_FileName"))
+  PrintThese(iLoop) = GetCurrentDirectory() + GetDatabaseString(App::PhotoDB, DatabaseColumnIndex(App::PhotoDB,"PDB_FileName"))
+
   
   ReDim PrintThese(iLoop + 1)
   
@@ -348,7 +349,7 @@ Procedure DisplayRecord()
   Define DBYear.i,DBMonth.i
   
   SearchString = SelectClause + Fromclause + Criteria + " ORDER BY PDB_Year ASC " + " LIMIT 1 OFFSET " + Str(CurrentRow -1)
-
+  
   DatabaseQuery(App::PhotoDB, SearchString)
 
   If FirstDatabaseRow(App::PhotoDB)
@@ -394,13 +395,12 @@ Procedure GetTotalRecords()
   ;Populate FileName Array for Image Viewer
   Dim FileNames(0)
   ReDim FileNames(TotalRows)
-  ;SearchString = SelectClause + Fromclause + Criteria
   iLoop = 0
   If DatabaseQuery(App::PhotoDB, SearchString)
     
     While NextDatabaseRow(App::PhotoDB)
       
-      FileNames(iLoop) = GetDatabaseString(App::PhotoDB, DatabaseColumnIndex(App::PhotoDB,"PDB_FileName"))
+      FileNames(iLoop) = GetCurrentDirectory() + GetDatabaseString(App::PhotoDB, DatabaseColumnIndex(App::PhotoDB,"PDB_FileName"))
       iLoop = iLoop + 1
       
     Wend
@@ -573,7 +573,7 @@ Procedure PrintThumbNails()
 EndProcedure
 
 Procedure ExportImages()
-  
+
   Define InitialPath.s,Path.s
   
   InitialPath = "C:\"   ; set initial path to display (could also be blank)
@@ -584,8 +584,6 @@ Procedure ExportImages()
     MessageRequester("Information", "The requester was canceled.", 0) 
   EndIf
 
-
-  
 EndProcedure
 
 CatchImage(#imgFirst,?FirstPhoto)
@@ -600,7 +598,7 @@ CatchImage(#imgHelp,?ToolBarHelp)
 CatchImage(#imgSelect,?ToolBarSelect)
 
 ;Main Window
-OpenWindow(#WinMain, 0, 0, 710, 336, "", #PB_Window_SystemMenu| #PB_Window_ScreenCentered)
+OpenWindow(#WinMain, 0, 0, 710, 358, "", #PB_Window_SystemMenu| #PB_Window_ScreenCentered)
 
 IconBar = IconBarGadget(0, 0, WindowWidth(#WinMain),20,#IconBar_Default,#WinMain) 
 AddIconBarGadgetItem(IconBar, "", #imgAdd)
@@ -661,7 +659,7 @@ ButtonImageGadget(#btnLast, 678, 305, 32, 32, ImageID(#imgLast))
 ShowFormTexts()
 
 ;Open The Photo Database
-App::PhotoDB = OpenDatabase(#PB_Any,"PhotoData.s3db","","")
+App::PhotoDB = OpenDatabase(#PB_Any,GetCurrentDirectory() + "PhotoData.s3db","","")
 ClearGadgets()
 
 Repeat
@@ -691,7 +689,7 @@ Repeat
               EndIf
      
             Case #mnuPreferences
-          
+ 
               Preferences::Open()
               Locale::Initialise()
               ShowFormTexts()
@@ -744,15 +742,12 @@ Repeat
             Case #mnuSearch
           
               TempCriteria = SearchWin::Open()
-
-              If Len(TempCriteria) > 0
-                Criteria = TempCriteria
-                ClearGadgets()
-                GetTotalRecords()
-                CurrentRow = 1
-                CheckRecords()
-                DisplayRecord()
-              EndIf
+              Criteria = TempCriteria
+              ClearGadgets()
+              GetTotalRecords()
+              CurrentRow = 1
+              CheckRecords()
+              DisplayRecord()
             
           EndSelect
         
@@ -858,15 +853,12 @@ Repeat
                 Case 1
               
                   TempCriteria = SearchWin::Open()
-
-                  If Len(TempCriteria) > 0
-                    Criteria = TempCriteria
-                    ClearGadgets()
-                    GetTotalRecords()
-                    CurrentRow = 1
-                    CheckRecords()
-                    DisplayRecord()
-                  EndIf
+                  Criteria = TempCriteria
+                  ClearGadgets()
+                  GetTotalRecords()
+                  CurrentRow = 1
+                  CheckRecords()
+                  DisplayRecord()
               
                 Case 2
  
@@ -924,8 +916,9 @@ DataSection
     IncludeBinary "SelectImage.png"      
     
   EndDataSection
-; IDE Options = PureBasic 5.60 Beta 1 (Windows - x64)
-; CursorPosition = 19
-; Folding = Bw0
+; IDE Options = PureBasic 5.60 Beta 3 (Windows - x64)
+; CursorPosition = 750
+; FirstLine = 371
+; Folding = FE9
 ; EnableXP
 ; EnableUnicode

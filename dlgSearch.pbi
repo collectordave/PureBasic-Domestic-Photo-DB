@@ -235,7 +235,8 @@ EndEnumeration
                 Quit = #True
           
             Case #btnCancel
-            
+              
+              RetVal = ""
               CloseWindow(#winSearchCriteria)
               Quit = #True
               
@@ -248,8 +249,6 @@ EndEnumeration
               ;For iLoop = 0 To CountGadgetItems(#cmbSubject)
               ;  Debug GetGadgetItemText(#cmbSubject, iLoop - 1)
               ;Next iLoop  
-                
-
               
             Case #cmbMonth
               
@@ -265,8 +264,8 @@ EndEnumeration
   EndProcedure
 
 EndModule
-; IDE Options = PureBasic 5.50 (Windows - x64)
-; CursorPosition = 156
-; FirstLine = 46
-; Folding = D-
+; IDE Options = PureBasic 5.60 Beta 1 (Windows - x64)
+; CursorPosition = 238
+; FirstLine = 65
+; Folding = D+
 ; EnableXP

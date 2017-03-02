@@ -118,7 +118,7 @@ Module AddPhoto
     NewImgSize = MemorySize(newImg)
     
     ;Folder For Image
-    ImageFolder = App::BaseFolder + Str(Year(SelDate)) + " " + App::NumberToMonth(Month(SelDate)) + " - " + GetGadgetText(#cmbSubject)
+    ImageFolder = GetCurrentDirectory() + Str(Year(SelDate)) + " " + App::NumberToMonth(Month(SelDate)) + " - " + GetGadgetText(#cmbSubject)
     App::CheckCreatePath(ImageFolder)
     PhotoSaveFileName = ImageFolder + App::#Pathsep + GetFilePart(PhotoFileName)
 
@@ -127,7 +127,7 @@ Module AddPhoto
     Else   
       CopyFile(PhotoFileName, PhotoSaveFileName) ;Copy The Photograph
     EndIf
-   
+    PhotoSaveFileName = Str(Year(SelDate)) + " " + App::NumberToMonth(Month(SelDate)) + " - " + GetGadgetText(#cmbSubject) + App::#Pathsep + GetFilePart(PhotoFileName)
     ;Add record To database
     DBID = OpenDatabase(#PB_Any,GetCurrentDirectory() + "PhotoData.s3db","","")
     SetDatabaseBlob(DBID, 0, NewImg, NewImgSize)
@@ -213,7 +213,8 @@ Module AddPhoto
   EndProcedure
 
 EndModule
-; IDE Options = PureBasic 5.60 Beta 1 (Windows - x64)
-; CursorPosition = 18
+; IDE Options = PureBasic 5.60 Beta 3 (Windows - x64)
+; CursorPosition = 137
+; FirstLine = 81
 ; Folding = n-
 ; EnableXP
