@@ -6,7 +6,7 @@ EndDeclareModule
 
 Module Preferences
 
-Enumeration 50 
+Enumeration 500 
   #winPreferences
   #txtLanguage
   #strLanguage
@@ -19,6 +19,8 @@ Enumeration 50
   #txtOnAdd
   #optCopy
   #optMove  
+  #txtPrintSize
+  #strSingle
   #btnOk
   #btnCancel
 EndEnumeration
@@ -47,7 +49,7 @@ Procedure Open()
   Define Quit.i = #False
   Define SelectedPath.s
   
-  OpenWindow(#winPreferences, 0, 0, 340, 160, "", #PB_Window_Tool | #PB_Window_WindowCentered)
+  OpenWindow(#winPreferences, 0, 0, 340, 180, "", #PB_Window_Tool | #PB_Window_WindowCentered)
   TextGadget(#txtLanguage, 5, 10, 60, 20, "", #PB_Text_Right)
   StringGadget(#strLanguage, 70, 10, 110, 20, "")
   ButtonGadget(#btnSelectLanguage, 180, 10, 20, 20, "...")
@@ -60,13 +62,14 @@ Procedure Open()
   SpinGadget(#spnTime, 280, 10, 40, 20, 1, 10, #PB_Spin_Numeric)
   TextGadget(#txtOnAdd, 10, 95, 60, 20, "", #PB_Text_Right)
   OptionGadget(#optCopy, 100, 90, 70, 20, "")
-  OptionGadget(#optMove, 175, 90, 70, 20, "")  
-  ButtonGadget(#btnOk, 170, 120, 70, 25, "")
-  ButtonGadget(#btnCancel, 260, 120, 70, 25, "")
+  OptionGadget(#optMove, 175, 90, 70, 20, "") 
+  TextGadget(#txtPrintSize, 10, 120, 100, 20, "Thumbnail Size", #PB_Text_Right) 
+  StringGadget(#strSingle, 120, 120, 60, 20, "75mm") 
+  ButtonGadget(#btnOk, 170, 150, 70, 25, "")
+  ButtonGadget(#btnCancel, 260, 150, 70, 25, "")
   StickyWindow(#winPreferences,#True)
   
   ShowFormTexts()
-  
   SetGadgetText(#strLanguage,App::Language)
   SetGadgetState(#spnTime,App::SlideTime)
   SetGadgetText(#strImageFolder,App::BaseFolder) 
@@ -75,6 +78,7 @@ Procedure Open()
   Else
     SetGadgetState(#optCopy,#True)
   EndIf  
+  
   
   Repeat
   
@@ -92,6 +96,7 @@ Procedure Open()
           App::BaseFolder = GetGadgetText(#strImageFolder)
           App::SlideTime = GetGadgetState(#spnTime)
           App::Move = GetGadgetState(#optMove)
+          App::ThumbSize = Val(GetGadgetText(#strSingle))
           App::Writepreferences("PhotoDB")
           CloseWindow(#winPreferences)
           Quit = #True
@@ -125,8 +130,7 @@ Until Quit = #True
 EndProcedure
 
 EndModule
-; IDE Options = PureBasic 5.50 (Windows - x64)
-; CursorPosition = 61
-; FirstLine = 47
-; Folding = -
+; IDE Options = PureBasic 5.60 Beta 1 (Windows - x64)
+; CursorPosition = 8
+; Folding = 8
 ; EnableXP
