@@ -5,44 +5,43 @@
 EndDeclareModule
 
 Module EditSubject
-
-  Enumeration 300
-    #winAddSubject
-    #btnOk
-    #btnCancel
-    #cmbSubject
-    #strSubject
-  EndEnumeration
+  
+  Global winEditSubject.i,strSubject.i,cmbSubject.i,btnOk.i,btnCancel
+  
+;  Enumeration PhotoDB 350
+;   ; #winAddSubject
+;    #btnOk
+;    #btnCancel
+;    #cmbSubject
+;    #strSubject
+;  EndEnumeration
 
   Procedure ShowFormTexts()
     
-    SetWindowTitle(#winAddSubject,Locale::TranslatedString(108))
-    SetGadgetText(#btnOk,Locale::TranslatedString(0))
-    SetGadgetText(#btnCancel,Locale::TranslatedString(3))   
+    SetWindowTitle(winEditSubject,Locale::TranslatedString(108))
+    SetGadgetText(btnOk,Locale::TranslatedString(0))
+    SetGadgetText(btnCancel,Locale::TranslatedString(3))   
     
   EndProcedure
   
   Procedure LoadSubjects()
-  
-    Define DBID.i
+
     Define Criteria.s
     Define iLoop.i = 0
-    
-    DBID = OpenDatabase(#PB_Any,GetCurrentDirectory() + "PhotoData.s3db","","")
   
     Criteria = "Select * FROM Subject ORDER BY PDB_Title ASC;"
   
-    If DatabaseQuery(DBID, Criteria)
+    If DatabaseQuery(App::PhotoDB, Criteria)
     
-      While NextDatabaseRow(DBID) ; Loop for each records
+      While NextDatabaseRow(App::PhotoDB) ; Loop for each records
       
-        AddGadgetItem(#cmbSubject,iLoop,GetDatabaseString(DBID, 1))
-        SetGadgetItemData(#cmbSubject, iLoop,GetDatabaseLong(DBID, 0))
+        AddGadgetItem(cmbSubject,iLoop,GetDatabaseString(App::PhotoDB, 1))
+        SetGadgetItemData(cmbSubject, iLoop,GetDatabaseLong(App::PhotoDB, 0))
         iLoop = iLoop + 1
         
       Wend
   
-      FinishDatabaseQuery(DBID)
+      FinishDatabaseQuery(App::PhotoDB)
     
     EndIf
   
@@ -51,8 +50,8 @@ Module EditSubject
   Procedure.i EditSubject()
     
     Define Criteria.s
-    Define Subject_ID.i = GetGadgetItemData(#cmbSubject,GetGadgetState(#cmbSubject))
-    Define Subject.s = ReplaceString(GetGadgetText(#strSubject),"'","''")
+    Define Subject_ID.i = GetGadgetItemData(cmbSubject,GetGadgetState(cmbSubject))
+    Define Subject.s = ReplaceString(GetGadgetText(strSubject),"'","''")
     
     Criteria = "UPDATE Subject SET PDB_Title = '" + Subject + "' WHERE Subject_ID = " + Str(Subject_ID) +";"
     DatabaseUpdate(App::PhotoDB, Criteria) 
@@ -64,12 +63,12 @@ Module EditSubject
   
     Define Quit.i = #False 
   
-    OpenWindow(#winAddSubject, 0, 0, 270, 110, "", #PB_Window_TitleBar | #PB_Window_WindowCentered)
-    ButtonGadget(#btnOk, 110, 70, 70, 25, "")
-    ButtonGadget(#btnCancel, 190, 70, 70, 25, "")
-    ComboBoxGadget(#cmbSubject, 10, 10, 250, 20)
-    StringGadget(#strSubject, 10, 40, 250, 20, "")   
-    StickyWindow(#winAddSubject,#True)
+    winEditSubject = OpenWindow(#PB_Any, 0, 0, 270, 110, "", #PB_Window_TitleBar | #PB_Window_WindowCentered)
+    btnOk = ButtonGadget(#PB_Any, 110, 70, 70, 25, "")
+    btnCancel = ButtonGadget(#PB_Any, 190, 70, 70, 25, "")
+    cmbSubject = ComboBoxGadget(#PB_Any, 10, 10, 250, 20)
+    strSubject = StringGadget(#PB_Any, 10, 40, 250, 20, "")   
+    StickyWindow(winEditSubject,#True)
     ShowFormTexts()    
     LoadSubjects()
     
@@ -83,19 +82,19 @@ Module EditSubject
           
           Select  EventGadget()
               
-            Case #cmbSubject
+            Case cmbSubject
               
-              SetGadgetText(#strSubject,GetGadgetText(#cmbSubject))
+              SetGadgetText(strSubject,GetGadgetText(cmbSubject))
           
-            Case #btnOk
+            Case btnOk
               
               EditSubject()
-              CloseWindow(#winAddSubject)
+              CloseWindow(winEditSubject)
               Quit = #True
           
-            Case #btnCancel
+            Case btnCancel
             
-              CloseWindow(#winAddSubject)
+              CloseWindow(winEditSubject)
               Quit = #True
            
           EndSelect 
@@ -107,7 +106,8 @@ Module EditSubject
   EndProcedure  
 
 EndModule
-; IDE Options = PureBasic 5.50 (Windows - x64)
-; CursorPosition = 66
-; Folding = j-
+; IDE Options = PureBasic 5.60 beta 6 (Windows - x64)
+; CursorPosition = 86
+; FirstLine = 71
+; Folding = 8-
 ; EnableXP

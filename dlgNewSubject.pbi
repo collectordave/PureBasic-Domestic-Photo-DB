@@ -5,26 +5,21 @@
 EndDeclareModule
 
 Module NewSubject
-
-Enumeration 300
-  #winAddSubject
-  #btnOk
-  #btnCancel
-  #strSubject
-EndEnumeration
+  
+  Global winAddSubject.i,strSubject.i,btnOk.i,btnCancel
 
   Procedure ShowFormTexts()
     
-    SetWindowTitle(#winAddSubject,Locale::TranslatedString(112))
-    SetGadgetText(#btnOk,Locale::TranslatedString(0))
-    SetGadgetText(#btnCancel,Locale::TranslatedString(3))   
+    SetWindowTitle(winAddSubject,Locale::TranslatedString(112))
+    SetGadgetText(btnOk,Locale::TranslatedString(0))
+    SetGadgetText(btnCancel,Locale::TranslatedString(3))   
     
   EndProcedure
   
   Procedure.i SaveSubject()
     
     Define Criteria.s
-    Define Subject.s = ReplaceString(GetGadgetText(#strSubject),"'","''")
+    Define Subject.s = ReplaceString(GetGadgetText(strSubject),"'","''")
 
     Criteria = "SELECT * FROM Subject WHERE PDB_Title = '" + Subject +"';"
     If DatabaseQuery(App::PhotoDB, Criteria)
@@ -54,11 +49,11 @@ EndEnumeration
   
     Define Quit.i = #False 
   
-    OpenWindow(#winAddSubject, 0, 0, 270, 80, "", #PB_Window_TitleBar | #PB_Window_WindowCentered)
-    ButtonGadget(#btnOk, 110, 40, 70, 25, "")
-    ButtonGadget(#btnCancel, 190, 40, 70, 25, "")
-    StringGadget(#strSubject, 10, 10, 250, 20, "")
-    StickyWindow(#winAddSubject,#True)
+    winAddSubject = OpenWindow(#PB_Any, 0, 0, 270, 80, "", #PB_Window_TitleBar | #PB_Window_WindowCentered)
+    btnOk = ButtonGadget(#PB_Any, 110, 40, 70, 25, "")
+    btnCancel = ButtonGadget(#PB_Any, 190, 40, 70, 25, "")
+    strSubject = StringGadget(#PB_Any, 10, 10, 250, 20, "")
+    StickyWindow(winAddSubject,#True)
     ShowFormTexts()
     
     Repeat
@@ -71,16 +66,16 @@ EndEnumeration
           
           Select  EventGadget()
           
-            Case #btnOk
+            Case btnOk
 
              If SaveSubject() = #True
-                CloseWindow(#winAddSubject)
+                CloseWindow(winAddSubject)
                 Quit = #True
               EndIf
           
-            Case #btnCancel
+            Case btnCancel
             
-              CloseWindow(#winAddSubject)
+              CloseWindow(winAddSubject)
               Quit = #True
            
           EndSelect 
@@ -92,8 +87,7 @@ EndEnumeration
   EndProcedure  
 
 EndModule
-; IDE Options = PureBasic 5.50 (Windows - x64)
-; CursorPosition = 56
-; FirstLine = 51
-; Folding = -
+; IDE Options = PureBasic 5.60 beta 6 (Windows - x64)
+; CursorPosition = 9
+; Folding = j
 ; EnableXP

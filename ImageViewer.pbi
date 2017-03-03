@@ -8,12 +8,12 @@ Module ImageViewer
   
   Global AspectRatioWidth.f,AspectRatioHeight.f
   
-  Global ImageToView.i
+  Global ImageToView.i,BackWindow.i,ShowImage.i
   
-  Enumeration 200
-    #BackWindow
-    #ShowImage
-  EndEnumeration
+ ; Enumeration PhotoDB 100
+ ;   #BackWindow
+ ;   #ShowImage
+ ; EndEnumeration
 
   Procedure ShowImage(FileName.s)
     
@@ -36,8 +36,8 @@ Module ImageViewer
         ;x and y position for the Image Gadget
         x = DesktopWidth(0)/2-ImageWidth(ImageToView)/2
         y = DesktopHeight(0)/2-ImageHeight(ImageToView)/2
-        ResizeGadget(#ShowImage,x,y,ImageWidth(ImageToView),ImageHeight(ImageToView))
-        SetGadgetState(#ShowImage,ImageID(ImageToView))
+        ResizeGadget(ShowImage,x,y,ImageWidth(ImageToView),ImageHeight(ImageToView))
+        SetGadgetState(ShowImage,ImageID(ImageToView))
       
       EndIf
       
@@ -52,11 +52,11 @@ Module ImageViewer
     ExamineDesktops()
     
     ;Open a whole screen black window as background
-    OpenWindow(#BackWindow,0,0,DesktopWidth(0),DesktopHeight(0),"", #PB_Window_BorderLess)
-    SetWindowColor(#BackWindow,0) 
-    ImageGadget(#ShowImage,  0, 0, DesktopWidth(0),DesktopHeight(0), 0) 
-    AddKeyboardShortcut(#BackWindow,#PB_Shortcut_F11,25)
-    AddWindowTimer(#BackWindow, 11, App::SlideTime * 1000)
+    BackWindow = OpenWindow(#PB_Any,0,0,DesktopWidth(0),DesktopHeight(0),"", #PB_Window_BorderLess)
+    SetWindowColor(BackWindow,0) 
+    ShowImage = ImageGadget(#PB_Any,  0, 0, DesktopWidth(0),DesktopHeight(0), 0) 
+    AddKeyboardShortcut(BackWindow,#PB_Shortcut_F11,25)
+    AddWindowTimer(BackWindow, 11, App::SlideTime * 1000)
 
     ShowImage(Filenames(iLoop)) ;Show First Or Only Image
     
@@ -67,7 +67,7 @@ Module ImageViewer
           
         Case #PB_Event_RightClick  
           
-          CloseWindow(#BackWindow)         
+          CloseWindow(BackWindow)         
           Quit = #True 
           
         Case #PB_Event_Menu
@@ -76,7 +76,7 @@ Module ImageViewer
               
             Case 25
               
-              CloseWindow(#BackWindow)
+              CloseWindow(BackWindow)
               Quit = #True 
               
           EndSelect
@@ -88,7 +88,7 @@ Module ImageViewer
               iLoop = iLoop + 1
               ShowImage(Filenames(iLoop)) 
             Else
-              CloseWindow(#BackWindow)
+              CloseWindow(BackWindow)
               Quit = #True
             EndIf
           EndIf    
@@ -98,12 +98,10 @@ Module ImageViewer
     Until Quit = #True 
     
   EndProcedure
-  
-
-     
+   
 EndModule
-; IDE Options = PureBasic 5.60 Beta 3 (Windows - x64)
-; CursorPosition = 60
-; FirstLine = 47
+; IDE Options = PureBasic 5.60 beta 6 (Windows - x64)
+; CursorPosition = 90
+; FirstLine = 72
 ; Folding = -
 ; EnableXP

@@ -6,20 +6,15 @@ EndDeclareModule
 
 Module SelectDate
   
-  Global SelectedDate.i
+  Global Windate.i,Calendar.i,btnOk.i,btnCancel
   
-  Enumeration 350
-    #Windate
-    #Calendar
-    #btnOk
-    #btnCancel
-  EndEnumeration
+  Global SelectedDate.i
   
   Procedure ShowFormTexts()
     
-    SetWindowTitle(#Windate,Locale::TranslatedString(100))
-    SetGadgetText(#btnOk,Locale::TranslatedString(0))
-    SetGadgetText(#btnCancel,Locale::TranslatedString(3))   
+    SetWindowTitle(Windate,Locale::TranslatedString(100))
+    SetGadgetText(btnOk,Locale::TranslatedString(0))
+    SetGadgetText(btnCancel,Locale::TranslatedString(3))   
     
   EndProcedure
      
@@ -28,10 +23,10 @@ Module SelectDate
     Define Date.i 
     Define Quit.i = #False
     
-    OpenWindow(#Windate, 50, 50, 270, 250, "")
-    CalendarGadget(#Calendar, 10, 10, 250, 200)
-    ButtonGadget(#btnOk, 110, 220, 70, 25, "")
-    ButtonGadget(#btnCancel, 190, 220, 70, 25, "")   
+    Windate = OpenWindow(#PB_Any, 50, 50, 270, 250, "")
+    Calendar = CalendarGadget(#PB_Any, 10, 10, 250, 200)
+    btnOk = ButtonGadget(#PB_Any, 110, 220, 70, 25, "")
+    btnCancel = ButtonGadget(#PB_Any, 190, 220, 70, 25, "")   
     ShowFormTexts()
     
     Repeat
@@ -40,18 +35,19 @@ Module SelectDate
       
       Select  EventGadget()
           
-        Case #Calendar
-          SelectedDate = GetGadgetState(#Calendar)
+        Case Calendar
           
-        Case #btnOk
+          SelectedDate = GetGadgetState(Calendar)
+          
+        Case btnOk
 
-           CloseWindow(#Windate)
+           CloseWindow(Windate)
            Quit = #True
            ProcedureReturn SelectedDate
            
-        Case #btnCancel
+        Case btnCancel
           
-          CloseWindow(#Windate)
+          CloseWindow(Windate)
           Quit = #True
           ProcedureReturn -1
           
@@ -62,7 +58,8 @@ Module SelectDate
   EndProcedure
   
   EndModule  
-; IDE Options = PureBasic 5.51 (Windows - x64)
-; Folding = -
+; IDE Options = PureBasic 5.60 beta 6 (Windows - x64)
+; CursorPosition = 11
+; Folding = 8
 ; EnableXP
 ; EnableUnicode

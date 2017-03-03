@@ -28,10 +28,36 @@ UsePNGImageDecoder()
 UseJPEGImageDecoder()
 UseSQLiteDatabase()
 
+Global WinMain.i,WinToolBar.i,WinMainmnu.i,txtStatus.i,btnFirst.i,btnPrevious.i,btnNext.i,btnLast
+Global frmImages.i,btnViewImage.i,btnSlideShow.i,ImageContainer.i,frmDetail.i,txtSubject.i,strSubject.i
+Global txtYear.i,strYear.i,txtMonth.i,strMonth.i,frmContent.i,lstContent.i,btnAdd.i,btnRemove.i
+Global frmSelected.i,lstSelected.i,btnPreview.i,btnExport.i,btnClear.i
+Global imgPhoto.i,imgFirst.i,imgPrevious.i,imgNext.i,imgLast.i,imgSelect.i,imgAdd.i,imgSearch.i,imgPrefs.i,imgExit.i,imgHelp.i
+
+
+;Menu And Image Enumeration
+Enumeration PhotoDB 1  ;MainForm
+  #mnuAddPhoto
+  #mnuAddSubject
+  #mnuEditSubject
+  #mnuDeleteSubject
+  #mnuAddContent
+  #mnuEditContent  
+  #mnuDeleteContent
+  #mnuSearch
+  #mnuPreferences
+  #mnuPrintItem
+  #mnuPrintThumbs
+  #mnuExit
+  #mnuHelp
+  #mnuAbout
+EndEnumeration
+
 ;Include Files
 IncludeFile "Locale.pbi"
 IncludeFile "App.pbi"
 IncludeFile "DCTool.pbi"
+IncludeFile "dlgSearch.pbi"
 IncludeFile "ImageViewer.pbi"
 IncludeFile "dlgPreferences.pbi"
 IncludeFile "dlgSelectDate.pbi"
@@ -42,7 +68,6 @@ IncludeFile "dlgDeleteSubject.pbi"
 IncludeFile "dlgNewContent.pbi"
 IncludeFile "dlgEditContent.pbi"
 IncludeFile "dlgDeleteContent.pbi"
-IncludeFile "dlgSearch.pbi"
 IncludeFile "dlgAddContent.pbi"
 IncludeFile "CDPrint.pbi"
 
@@ -65,64 +90,6 @@ Else
   Locale::AppLanguage = App::Language
 EndIf
 Locale::Initialise()
-
-;Main Menu Enumeration
-Enumeration 50  ;MainForm
-  ;Main Window
-  #WinMain
-  #WinToolBar
-  #WinMainmnu
-  #txtStatus  
-  #btnFirst  
-  #btnPrevious
-  #btnNext 
-  #btnLast
-  #mnuAddPhoto
-  #mnuAddSubject
-  #mnuEditSubject
-  #mnuDeleteSubject
-  #mnuAddContent
-  #mnuEditContent  
-  #mnuDeleteContent
-  #mnuSearch
-  #mnuPreferences
-  #mnuPrintItem
-  #mnuPrintThumbs
-  #mnuExit
-  #mnuHelp
-  #mnuAbout
-  #frmImages
-  #btnViewImage
-  #btnSlideShow
-  #ImageContainer
-  #imgPhoto
-  #imgFirst
-  #imgPrevious
-  #imgNext
-  #imgLast
-  #imgSelect
-  #imgAdd
-  #imgSearch
-  #imgPrefs
-  #imgExit
-  #imgHelp
-  #frmDetail
-  #txtSubject
-  #strSubject
-  #txtYear
-  #strYear
-  #txtMonth
-  #strMonth
-  #frmContent
-  #lstContent
-  #btnAdd
-  #btnRemove
-  #frmSelected
-  #lstSelected
-  #btnPreview
-  #btnExport
-  #btnClear 
-EndEnumeration
 
 ;Global Variables
 Global IconBar.i,PrintControl.i 
@@ -151,8 +118,8 @@ StatusFont = LoadFont(#PB_Any,"Comic Sans MS", 14)
 Procedure ShowFormTexts()
   
   ;Window Title
-  SetWindowTitle(#WinMain,Locale::TranslatedString(104))
-  SetGadgetText(#txtStatus,"Photograph" + " 0 " + Locale::TranslatedString(125) + " 0 " + Locale::TranslatedString(126))
+  SetWindowTitle(WinMain,Locale::TranslatedString(104))
+  SetGadgetText(txtStatus,"Photograph" + " 0 " + Locale::TranslatedString(125) + " 0 " + Locale::TranslatedString(126))
   SetIconBarGadgetItemText(IconBar,Locale::TranslatedString(127),0,#IconBarText_ToolTip)
   SetIconBarGadgetItemText(IconBar,Locale::TranslatedString(29),1,#IconBarText_ToolTip)
   SetIconBarGadgetItemText(IconBar,Locale::TranslatedString(52),2,#IconBarText_ToolTip)
@@ -162,10 +129,10 @@ Procedure ShowFormTexts()
 
   
   ;Menu
-  If IsMenu(#WinMainmnu)
-    FreeMenu(#WinMainmnu)
+  If IsMenu(WinMainmnu)
+    FreeMenu(WinMainmnu)
   EndIf
-  CreateMenu(#WinMainmnu, WindowID(#WinMain))
+  WinMainmnu = CreateMenu(#PB_Any, WindowID(WinMain))
   MenuTitle(Locale::TranslatedString(128))
   MenuItem(#mnuAddPhoto, Locale::TranslatedString(127))
   MenuItem(#mnuSearch, Locale::TranslatedString(29))
@@ -193,21 +160,21 @@ Procedure ShowFormTexts()
   ResizeIconBarGadget(IconBar, #PB_Ignore, #IconBar_Auto)  
   
   ;Images
-  SetGadgetText(#frmImages,Locale::TranslatedString(130))
-  SetGadgetText(#btnViewImage,Locale::TranslatedString(55))
-  SetGadgetText(#btnSlideShow,Locale::TranslatedString(131))
+  SetGadgetText(frmImages,Locale::TranslatedString(130))
+  SetGadgetText(btnViewImage,Locale::TranslatedString(55))
+  SetGadgetText(btnSlideShow,Locale::TranslatedString(131))
   
   ;Photograph Detail
-  SetGadgetText(#frmDetail,Locale::TranslatedString(132))
-  GadgetToolTip(#frmDetail,Locale::TranslatedString(133))
-  SetGadgetText(#txtSubject,Locale::TranslatedString(121))
-  SetGadgetText(#txtYear,Locale::TranslatedString(123))
-  SetGadgetText(#txtMonth,Locale::TranslatedString(124))
+  SetGadgetText(frmDetail,Locale::TranslatedString(132))
+  GadgetToolTip(frmDetail,Locale::TranslatedString(133))
+  SetGadgetText(txtSubject,Locale::TranslatedString(121))
+  SetGadgetText(txtYear,Locale::TranslatedString(123))
+  SetGadgetText(txtMonth,Locale::TranslatedString(124))
   
   ;Content
-  SetGadgetText(#frmContent,Locale::TranslatedString(59))
-  SetGadgetText(#btnAdd,Locale::TranslatedString(127))
-  SetGadgetText(#btnRemove,Locale::TranslatedString(134))
+  SetGadgetText(frmContent,Locale::TranslatedString(59))
+  SetGadgetText(btnAdd,Locale::TranslatedString(127))
+  SetGadgetText(btnRemove,Locale::TranslatedString(134))
 
 EndProcedure
 
@@ -228,20 +195,20 @@ Procedure SelectForPrint()
   
   FinishDatabaseQuery(App::PhotoDB)
   
-  ClearGadgetItems(#lstSelected)
+  ClearGadgetItems(lstSelected)
   For j = 0 To iLoop
-    AddGadgetItem(#lstSelected,-1,GetFilePart(PrintThese(j)))
+    AddGadgetItem(lstSelected,-1,GetFilePart(PrintThese(j)))
   Next
   
 EndProcedure
 
 Procedure ClearGadgets()
   
-  SetGadgetText(#strYear,"")
-  SetGadgetText(#strMonth,"") 
-  SetGadgetText(#strSubject,"")
-  SetGadgetState(#imgPhoto,0)
-  ClearGadgetItems(#lstContent)
+  SetGadgetText(strYear,"")
+  SetGadgetText(strMonth,"") 
+  SetGadgetText(strSubject,"")
+  SetGadgetState(imgPhoto,0)
+  ClearGadgetItems(lstContent)
   
 EndProcedure
 
@@ -251,41 +218,41 @@ Procedure CheckRecords()
   If TotalRows < 2
     
     ;Only one record so it is the first and the last
-    DisableGadget(#btnLast, #True)     ;No move last as allready there
-    DisableGadget(#btnNext, #True)     ;No next record as this is the last record
-    DisableGadget(#btnFirst, #True)    ;No first record as this is the first record
-    DisableGadget(#btnPrevious, #True) ;No previous record as this is the first record
+    DisableGadget(btnLast, #True)     ;No move last as allready there
+    DisableGadget(btnNext, #True)     ;No next record as this is the last record
+    DisableGadget(btnFirst, #True)    ;No first record as this is the first record
+    DisableGadget(btnPrevious, #True) ;No previous record as this is the first record
     
   ElseIf CurrentRow = 1
     ;On the first row with more than one selected
-    DisableGadget(#btnLast, 0)     ;Can move to last record
-    DisableGadget(#btnNext, 0)     ;Can move to next record
-    DisableGadget(#btnFirst, #True)    ;No first record as this is the first record
-    DisableGadget(#btnPrevious, #True) ;No previous record as this is the first record
+    DisableGadget(btnLast, 0)     ;Can move to last record
+    DisableGadget(btnNext, 0)     ;Can move to next record
+    DisableGadget(btnFirst, #True)    ;No first record as this is the first record
+    DisableGadget(btnPrevious, #True) ;No previous record as this is the first record
     
   ElseIf  CurrentRow = TotalRows
     
     ;If on the last record
-    DisableGadget(#btnLast, #True)     ;No move last as allready there
-    DisableGadget(#btnNext, #True)     ;No next record as this is the last record
-    DisableGadget(#btnFirst, 0)    ;Can still move to first record
-    DisableGadget(#btnPrevious, 0) ;Can still move to previous record
+    DisableGadget(btnLast, #True)     ;No move last as allready there
+    DisableGadget(btnNext, #True)     ;No next record as this is the last record
+    DisableGadget(btnFirst, 0)    ;Can still move to first record
+    DisableGadget(btnPrevious, 0) ;Can still move to previous record
     
   Else
     
     ;Somewhere in the middle of the selected records
-    DisableGadget(#btnLast, 0)     ;Can move to last record
-    DisableGadget(#btnNext, 0)     ;Can move to next record
-    DisableGadget(#btnFirst, 0)    ;Can move to first record
-    DisableGadget(#btnPrevious, 0) ;Can move to previous record
+    DisableGadget(btnLast, 0)     ;Can move to last record
+    DisableGadget(btnNext, 0)     ;Can move to next record
+    DisableGadget(btnFirst, 0)    ;Can move to first record
+    DisableGadget(btnPrevious, 0) ;Can move to previous record
     
   EndIf
 
   ;Show the user what is going on
   If TotalRows > 0
-    SetGadgetText(#txtStatus,"Photograph " + Str(CurrentRow) + " " + Locale::TranslatedString(125) + " " + Str(TotalRows) + " Selected")
+    SetGadgetText(txtStatus,"Photograph " + Str(CurrentRow) + " " + Locale::TranslatedString(125) + " " + Str(TotalRows) + " Selected")
   Else
-    SetGadgetText(#txtStatus,"Photograph" + " 0 " + Locale::TranslatedString(125) + " 0 " + Locale::TranslatedString(126)) 
+    SetGadgetText(txtStatus,"Photograph" + " 0 " + Locale::TranslatedString(125) + " 0 " + Locale::TranslatedString(126)) 
   EndIf
 
 EndProcedure
@@ -295,14 +262,14 @@ Procedure DisplayContent()
   Define SearchString.s
   Define iLoop.i = 0
   
-  ClearGadgetItems(#lstContent)
+  ClearGadgetItems(lstContent)
   
   SearchString = "Select PhotoContent.Content_ID,Content.PDB_Title from PhotoContent LEFT Join Content on PhotoContent.Content_ID = Content.Content_ID WHERE PhotoContent.Photo_ID = " + Str(PhotoID)
 
   DatabaseQuery(App::PhotoDB, SearchString)
   While NextDatabaseRow(App::PhotoDB) ; Loop for each records
-    AddGadgetItem(#lstContent,iLoop,GetDatabaseString(App::PhotoDB, 1))
-    SetGadgetItemData(#lstContent, iLoop,GetDatabaseLong(App::PhotoDB, 0))    
+    AddGadgetItem(lstContent,iLoop,GetDatabaseString(App::PhotoDB, 1))
+    SetGadgetItemData(lstContent, iLoop,GetDatabaseLong(App::PhotoDB, 0))    
     iLoop = iLoop + 1
   Wend
 
@@ -315,7 +282,7 @@ Procedure RemoveContent()
   Define DeleteString.s
   Define ContentID.i
   
-  ContentID = GetGadgetItemData(#lstContent,GetGadgetState(#lstContent))
+  ContentID = GetGadgetItemData(lstContent,GetGadgetState(lstContent))
   
   If ContentID > -1
     
@@ -338,8 +305,8 @@ Procedure GetImageFromDB()
   FreeMemory(Picture)
   x = (200 - ImageWidth(54))/2
   y = (200 - ImageHeight(54))/2
-  ResizeGadget(#imgPhoto,x,y,ImageWidth(54),ImageHeight(54))
-  SetGadgetState(#imgPhoto,ImageID(54))
+  ResizeGadget(imgPhoto,x,y,ImageWidth(54),ImageHeight(54))
+  SetGadgetState(imgPhoto,ImageID(54))
     
 EndProcedure
 
@@ -356,11 +323,11 @@ Procedure DisplayRecord()
 
     PhotoID = GetDatabaseLong(App::PhotoDB,DatabaseColumnIndex(App::PhotoDB,"Photo_ID"))
     DBYear =  GetDatabaseLong(App::PhotoDB, DatabaseColumnIndex(App::PhotoDB, "PDB_Year"))
-    SetGadgetText(#strYear,Str(DBYear))
+    SetGadgetText(strYear,Str(DBYear))
     DBMonth =  GetDatabaseLong(App::PhotoDB, DatabaseColumnIndex(App::PhotoDB, "PDB_Month")) 
     SMonth = App::NumberToMonth(DBMonth)
-    SetGadgetText(#strMonth,SMonth) 
-    SetGadgetText(#strSubject,GetDatabaseString(App::PhotoDB, DatabaseColumnIndex(App::PhotoDB, "PDB_Title")))
+    SetGadgetText(strMonth,SMonth) 
+    SetGadgetText(strSubject,GetDatabaseString(App::PhotoDB, DatabaseColumnIndex(App::PhotoDB, "PDB_Title")))
     GetImageFromDB()
     DisplayContent()
     FinishDatabaseQuery(App::PhotoDB)
@@ -388,8 +355,6 @@ Procedure GetTotalRecords()
     
     FinishDatabaseQuery(App::PhotoDB)  
     
-  Else
-    Debug DatabaseError()
   EndIf
   
   ;Populate FileName Array for Image Viewer
@@ -586,81 +551,84 @@ Procedure ExportImages()
 
 EndProcedure
 
-CatchImage(#imgFirst,?FirstPhoto)
-CatchImage(#imgPrevious,?PreviousPhoto)
-CatchImage(#imgNext,?NextPhoto)
-CatchImage(#imgLast,?LastPhoto)
-CatchImage(#imgAdd,?ToolBarAdd)
-CatchImage(#imgSearch,?ToolBarSearch)
-CatchImage(#imgPrefs,?ToolBarPreferences)
-CatchImage(#imgExit,?ToolBarExit)
-CatchImage(#imgHelp,?ToolBarHelp)
-CatchImage(#imgSelect,?ToolBarSelect)
+imgFirst = CatchImage(#PB_Any,?FirstPhoto)
+imgPrevious = CatchImage(#PB_Any,?PreviousPhoto)
+imgNext = CatchImage(#PB_Any,?NextPhoto)
+imgLast = CatchImage(#PB_Any,?LastPhoto)
+imgAdd = CatchImage(#PB_Any,?ToolBarAdd)
+imgSearch = CatchImage(#PB_Any,?ToolBarSearch)
+imgPrefs = CatchImage(#PB_Any,?ToolBarPreferences)
+imgExit = CatchImage(#PB_Any,?ToolBarExit)
+imgHelp = CatchImage(#PB_Any,?ToolBarHelp)
+imgSelect = CatchImage(#PB_Any,?ToolBarSelect)
 
 ;Main Window
-OpenWindow(#WinMain, 0, 0, 710, 358, "", #PB_Window_SystemMenu| #PB_Window_ScreenCentered)
+WinMain = OpenWindow(#PB_Any, 0, 0, 710, 358, "", #PB_Window_SystemMenu| #PB_Window_ScreenCentered)
 
-IconBar = IconBarGadget(0, 0, WindowWidth(#WinMain),20,#IconBar_Default,#WinMain) 
-AddIconBarGadgetItem(IconBar, "", #imgAdd)
-AddIconBarGadgetItem(IconBar, "", #imgSearch)
-AddIconBarGadgetItem(IconBar, "", #imgPrefs)
+IconBar = IconBarGadget(0, 0, WindowWidth(WinMain),20,#IconBar_Default,WinMain) 
+AddIconBarGadgetItem(IconBar, "", imgAdd)
+AddIconBarGadgetItem(IconBar, "", imgSearch)
+AddIconBarGadgetItem(IconBar, "", imgPrefs)
 IconBarGadgetDivider(IconBar)
-AddIconBarGadgetItem(IconBar, "", #imgSelect)
+AddIconBarGadgetItem(IconBar, "", imgSelect)
 IconBarGadgetDivider(IconBar)
-AddIconBarGadgetItem(IconBar, "", #imgExit)
+AddIconBarGadgetItem(IconBar, "", imgExit)
 IconBarGadgetSpacer(IconBar)
-AddIconBarGadgetItem(IconBar, "", #imgHelp)
+AddIconBarGadgetItem(IconBar, "", imgHelp)
 ResizeIconBarGadget(IconBar, #PB_Ignore, #IconBar_Auto)  
 SetIconBarGadgetColor(IconBar, 1, RGB(176,224,230))
-TextGadget(#txtStatus, 65,305, 580, 32, "",#PB_Text_Center|#PB_Text_Border)
-SetGadgetFont(#txtStatus, FontID(StatusFont))
+txtStatus = TextGadget(#PB_Any, 65,305, 580, 32, "",#PB_Text_Center|#PB_Text_Border)
+SetGadgetFont(txtStatus, FontID(StatusFont))
 
 ;Move window to centre screen at the top
-ResizeWindow(#WinMain,#PB_Ignore,5,#PB_Ignore,#PB_Ignore)
+ResizeWindow(WinMain,#PB_Ignore,5,#PB_Ignore,#PB_Ignore)
   
 ;Images
-FrameGadget(#frmImages, 5, 42, 210, 262, "")
-ButtonGadget(#btnViewImage, 10, 272, 70, 25, "")
-ButtonGadget(#btnSlideShow, 140, 272, 70, 25, "")
-ContainerGadget(#ImageContainer, 10, 55, 200, 200)
-SetGadgetColor(#ImageContainer, #PB_Gadget_BackColor,RGB(0,0,0))
-ImageGadget(#imgPhoto, 0, 0, 200, 200, 0)
+frmImages = FrameGadget(#PB_Any, 5, 42, 210, 262, "")
+btnViewImage = ButtonGadget(#PB_Any, 10, 272, 70, 25, "")
+btnSlideShow = ButtonGadget(#PB_Any, 140, 272, 70, 25, "")
+ImageContainer = ContainerGadget(#PB_Any, 10, 55, 200, 200)
+SetGadgetColor(ImageContainer, #PB_Gadget_BackColor,RGB(0,0,0))
+imgPhoto = ImageGadget(#PB_Any, 0, 0, 200, 200, 0)
 CloseGadgetList()
   
 ;Photograph Detail
-FrameGadget(#frmDetail, 220, 42, 290, 80, "")
-GadgetToolTip(#frmDetail, "")
-TextGadget(#txtSubject, 225, 65, 50, 20, "", #PB_Text_Right)
-StringGadget(#strSubject, 280, 65, 220, 20, "")
-TextGadget(#txtYear, 225, 95, 50, 20, "", #PB_Text_Right)
-StringGadget(#strYear, 280, 95, 50, 20, "")
-TextGadget(#txtMonth, 300, 95, 70, 20, "", #PB_Text_Right)
-StringGadget(#strMonth, 380, 95, 80, 20, "")
+frmDetail = FrameGadget(#PB_Any, 220, 42, 290, 80, "")
+GadgetToolTip(frmDetail, "")
+txtSubject = TextGadget(#PB_Any, 225, 65, 50, 20, "", #PB_Text_Right)
+strSubject = StringGadget(#PB_Any, 280, 65, 220, 20, "")
+txtYear = TextGadget(#PB_Any, 225, 95, 50, 20, "", #PB_Text_Right)
+strYear = StringGadget(#PB_Any, 280, 95, 50, 20, "")
+txtMonth = TextGadget(#PB_Any, 300, 95, 70, 20, "", #PB_Text_Right)
+strMonth = StringGadget(#PB_Any, 380, 95, 80, 20, "")
  
 ;Content
-FrameGadget(#frmContent, 220, 130, 290, 174,"")
-ListViewGadget(#lstContent, 230, 150, 270, 114)
-ButtonGadget(#btnAdd, 230, 272, 70, 25,"")
-ButtonGadget(#btnRemove, 430, 272, 70, 25,"")
+frmContent = FrameGadget(#PB_Any, 220, 130, 290, 174,"")
+lstContent = ListViewGadget(#PB_Any, 230, 150, 270, 114)
+btnAdd = ButtonGadget(#PB_Any, 230, 272, 70, 25,"")
+btnRemove = ButtonGadget(#PB_Any, 430, 272, 70, 25,"")
 
 ;Selected Files
-FrameGadget(#frmSelected, 520, 42, 180, 262, " Selected ")
-ListViewGadget(#lstSelected, 525, 60, 170, 200)
-ButtonGadget(#btnPreview, 525, 272, 50, 25,"Preview")
-ButtonGadget(#btnExport, 585, 272, 50, 25,"Export")
-ButtonGadget(#btnClear, 645, 272, 50, 25,"Clear")
+frmSelected = FrameGadget(#PB_Any, 520, 42, 180, 262, " Selected ")
+lstSelected = ListViewGadget(#PB_Any, 525, 60, 170, 200)
+btnPreview = ButtonGadget(#PB_Any, 525, 272, 50, 25,"Preview")
+btnExport = ButtonGadget(#PB_Any, 585, 272, 50, 25,"Export")
+btnClear = ButtonGadget(#PB_Any, 645, 272, 50, 25,"Clear")
 
 ;Navigation Buttons
-ButtonImageGadget(#btnFirst, 0, 305, 32, 32, ImageID(#imgFirst))
-ButtonImageGadget(#btnPrevious, 31, 305, 32, 32, ImageID(#imgPrevious))
-ButtonImageGadget(#btnNext, 646, 305, 32, 32, ImageID(#imgNext))
-ButtonImageGadget(#btnLast, 678, 305, 32, 32, ImageID(#imgLast))
+btnFirst = ButtonImageGadget(#PB_Any, 0, 305, 32, 32, ImageID(imgFirst))
+btnPrevious = ButtonImageGadget(#PB_Any, 31, 305, 32, 32, ImageID(imgPrevious))
+btnNext = ButtonImageGadget(#PB_Any, 646, 305, 32, 32, ImageID(imgNext))
+btnLast = ButtonImageGadget(#PB_Any, 678, 305, 32, 32, ImageID(imgLast))
 
 ShowFormTexts()
 
 ;Open The Photo Database
 App::PhotoDB = OpenDatabase(#PB_Any,GetCurrentDirectory() + "PhotoData.s3db","","")
 ClearGadgets()
+App::RecordDeleted = #False
+CheckRecords()
+
 
 Repeat
   
@@ -669,7 +637,11 @@ Repeat
       Select Event
       
         Case   #PB_Event_CloseWindow
-      
+          
+          If App::RecordDeleted = #True
+            DatabaseUpdate(App::PhotoDB,"VACUUM")
+          EndIf
+          CloseDatabase(App::PhotoDB)
           End
       
         Case #PB_Event_Menu
@@ -711,7 +683,11 @@ Repeat
               EndIf              
            
             Case #mnuExit
-
+              
+              If App::RecordDeleted = #True
+                DatabaseUpdate(App::PhotoDB,"VACUUM")
+              EndIf
+              CloseDatabase(App::PhotoDB)
               End
           
             Case #mnuAddSubject
@@ -740,7 +716,7 @@ Repeat
               DisplayContent()
           
             Case #mnuSearch
-          
+
               TempCriteria = SearchWin::Open()
               Criteria = TempCriteria
               ClearGadgets()
@@ -755,13 +731,13 @@ Repeat
         
           Select EventGadget()
             
-            Case #btnFirst
+            Case btnFirst
           
               CurrentRow = 1
               CheckRecords()
               DisplayRecord()
             
-            Case #btnPrevious
+            Case btnPrevious
           
               If CurrentRow > 1
                 CurrentRow = CurrentRow - 1
@@ -769,7 +745,7 @@ Repeat
                 DisplayRecord()
               EndIf          
           
-            Case #btnNext
+            Case btnNext
 
               If CurrentRow < TotalRows
                 CurrentRow = CurrentRow + 1
@@ -777,13 +753,13 @@ Repeat
                 DisplayRecord()
               EndIf
           
-            Case #btnLast
+            Case btnLast
                     
               CurrentRow = TotalRows
               CheckRecords()
               DisplayRecord()
           
-            Case #btnViewImage
+            Case btnViewImage
               
               If TotalRows > 0
                 Dim TempArray.s(0)
@@ -791,18 +767,18 @@ Repeat
                 ImageViewer::Open(TempArray())
               EndIf
               
-            Case   #btnSlideShow
+            Case   btnSlideShow
               
               If TotalRows > 0
                 ImageViewer::Open(FileNames())
               EndIf
               
-            Case #btnAdd
+            Case btnAdd
 
               AddContent::Open(PhotoID)
               DisplayContent()
           
-            Case #btnRemove
+            Case btnRemove
 
               RemoveContent()          
               ClearGadgets()
@@ -813,7 +789,7 @@ Repeat
               CheckRecords()
               DisplayRecord()
               
-            Case #btnPreview 
+            Case btnPreview 
               
               If ArraySize(printthese()) > 0
                 PrintThumbNails()
@@ -821,7 +797,7 @@ Repeat
                 MessageRequester(Locale::TranslatedString(104),"No Photograghs Selected",#PB_MessageRequester_Ok|#PB_MessageRequester_Info)
               EndIf
               
-            Case #btnExport
+            Case btnExport
               
               If ArraySize(printthese()) > 0
                 ExportImages()
@@ -829,9 +805,9 @@ Repeat
                 MessageRequester(Locale::TranslatedString(104),"No Photograghs Selected",#PB_MessageRequester_Ok|#PB_MessageRequester_Info)
               EndIf
                             
-            Case #btnClear
+            Case btnClear
               
-              ClearGadgetItems(#lstSelected)
+              ClearGadgetItems(lstSelected)
               ReDim PrintThese(0)
               
             Case IconBar ;Toolbar event
@@ -874,11 +850,15 @@ Repeat
                 
                  Case 4
 
-                  End
+                   If App::RecordDeleted = #True
+                     DatabaseUpdate(App::PhotoDB,"VACUUM")
+                   EndIf
+                   CloseDatabase(App::PhotoDB)
+                   End
                 
                 Case 5
               
-                  Debug Locale::TranslatedString(58) ;Help
+                  ;Debug Locale::TranslatedString(58) ;Help
               
               EndSelect           
             
@@ -916,9 +896,9 @@ DataSection
     IncludeBinary "SelectImage.png"      
     
   EndDataSection
-; IDE Options = PureBasic 5.60 Beta 3 (Windows - x64)
-; CursorPosition = 750
-; FirstLine = 371
-; Folding = FE9
+; IDE Options = PureBasic 5.60 beta 6 (Windows - x64)
+; CursorPosition = 621
+; FirstLine = 451
+; Folding = -P9
 ; EnableXP
 ; EnableUnicode
